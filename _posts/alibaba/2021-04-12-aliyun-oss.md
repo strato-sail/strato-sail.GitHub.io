@@ -108,8 +108,8 @@ OSS适用于以下场景：
 # aliyun oss
 aliyun:
   endpoint: http://oss-cn-hangzhou.aliyuncs.com
-  accessKeyId: LTAI5t8p6pZv9FmLBgMeTqxG
-  accessKeySecret: sPDeYGOrYlrJZ32vjZvKWY25IO982w
+  accessKeyId: ********
+  accessKeySecret: *********
   bucketName: wcy-bucket
   fileHost: dev
 ~~~
