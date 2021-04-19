@@ -218,7 +218,7 @@ int ParseXML::getStoppedLevel(string name) {
 
 因为要有任务的开启、暂停、继续、取消等功能。本来的思路是在`xml`里加一个状态信息，在切图程序运行中不断判断这个值，根据这个状态值而改变程序的运行状态。如下图所示：
 
-![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\project\post-geopdf-01.png)
+![](..\..\img\in-post\project\post-geopdf-01.png)
 
 之后发现此方案不妥：
 
@@ -227,7 +227,7 @@ int ParseXML::getStoppedLevel(string name) {
 
 于是采取**切图控制程序+切图程序**方案，两个进程同时工作，采用共享内存进行线程间通信，切图控制程序生命周期较短，切图程序生命周期较长，切图控制程序主要修改共享内存中的状态码。共享内存只有两个数据：`state, process`，状态码和切图进度。如下图：
 
-![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\project\post-geopdf-02.png)
+![](..\..\img\in-post\project\post-geopdf-02.png)
 
 共享内存操作主要的函数，头文件如下：
 
