@@ -20,13 +20,13 @@ Springboot中所有的请求过来都会来到DispatcherServlet，springboot底�
 
 DispatcherServlet继承自HttpServlet，所以必然子类会重写doget和dopost方法。
 
-![继承树](/img/in-post/spring/post-spring-springbootmapping-01.png)
+![继承树](../../img/in-post/spring/post-spring-springbootmapping-01.png)
 
-![继承树](/img/in-post/spring/post-spring-springbootmapping-02.png)
+![继承树](../../img/in-post/spring/post-spring-springbootmapping-02.png)
 
 在第三步中，HandlerMapping，处理器映射规则，每个url的请求对应哪一个handler处理。这些规则保存在handlerMappings里。
 
-![继承树](/img/in-post/spring/post-spring-springbootmapping-03.png)
+![继承树](../../img/in-post/spring/post-spring-springbootmapping-03.png)
 
 运行起来后handlerMappings里有个组件叫RequestMappingHandlerMapping，保存了所有@RequestMapping和handler的映射规则，相当于所有@RequestMapping处理器映射。（应用一启动，spring扫描所有映射注解，将所有注解保存在handlerMapping里）
 
@@ -34,7 +34,7 @@ RequestMappingHandlerMapping里有个组件叫mappingRegistry，映射注册中�
 
 第三步中的getHandler相当于遍历系统中的请求映射，看谁能处理当前请求。
 
-![继承树](/img/in-post/spring/post-spring-springbootmapping-04.png)
+![继承树](../../img/in-post/spring/post-spring-springbootmapping-04.png)
 
 > **总结**
 >
