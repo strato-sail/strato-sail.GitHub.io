@@ -1,15 +1,14 @@
 ---
 layout:     post
-title:      "RPC框架 Dubbo+Zookeeper 学习"
-subtitle:   "对 Dubbo 和 Zookeeper 的介绍以及学习使用过程"
+title:      "Zookeeper 学习"
+subtitle:   "对 Zookeeper 的介绍以及学习使用过程"
 date:       2021-04-19 12:00:00
 author:     "Wangcy"
 catalog: false
 header-style: text
 tags:
-  - dubbo
+  - 分布式
   - zookeeper
-  - RPC
 ---
 
 参考博客：https://blog.csdn.net/qq_41157588/article/details/106737191
@@ -54,11 +53,9 @@ Zookeeper数据结构和**Unix文件系统**很类似，是一种**树状结构*
 
 **1．安装前准备**
 
-（1）安装 Jdk
-
-（2）拷贝 Zookeeper 安装包到 Linux 系统下
-
-（3）解压到指定目录
+- 安装 Jdk拷贝
+- Zookeeper 安装包
+- 到 Linux 系统下解压到指定目录
 
 ~~~shell
 [root@xk1301the002 software]$ tar -zxvf zookeeper-3.4.10.tar.gz -C /opt/module/
@@ -220,9 +217,9 @@ Zookeeper使用的基本时间，服务器之间或客户端与服务器之间�
 
 点则是 0。 
 
-<u>**10）dataLength- znode 的数据长度**</u>
+**10）dataLength- znode 的数据长度**
 
-<u>**11）numChildren - znode 子节点数量**</u>
+**11）numChildren - znode 子节点数量**
 
 
 
@@ -238,7 +235,7 @@ Zookeeper使用的基本时间，服务器之间或客户端与服务器之间�
 - Zookeeper 监听到有数据或路径变化，就将这个消息发送给`listener`线程。
 - `listerner`线程内部调用了`process()`方法
 
-![](\img\in-post\zk+dubbo\zookeeper-01.png)
+![](\img\in-post\zookeeper\zookeeper-01.png)
 
 
 
@@ -246,7 +243,7 @@ Zookeeper使用的基本时间，服务器之间或客户端与服务器之间�
 
 只有 leader 有资格给所有  follower 发写请求的广播。
 
-![](\img\in-post\zk+dubbo\zookeeper-02.png)
+![](\img\in-post\zookeeper\zookeeper-02.png)
 
 
 
@@ -366,7 +363,7 @@ String nodeCreated = zkClient.create("/wcy",
 
 **4. 获取子节点并监听节点变化**
 
-![](\img\in-post\zk+dubbo\zookeeper-03.png)
+![](\img\in-post\zookeeper\zookeeper-03.png)
 
 可选择监听的内容。
 
@@ -406,7 +403,7 @@ sout(stat == null ? "not exist" : "exist");
 
 **每个服务器都是短暂节点（下线后自动删除 ZNode）**
 
-![](\img\in-post\zk+dubbo\zookeeper-04.png)
+![](\img\in-post\zookeeper\zookeeper-04.png)
 
 **1. 创建 /server 节点**
 
@@ -539,4 +536,10 @@ public class DistributeClient {
     }
 }
 ~~~
+
+
+
+
+
+# 2 Zookeeper在应用中的问题
 
