@@ -13,4 +13,7 @@
     <!--  声明需要调用的远程服务的接口，生成远程服务代理  -->
     <dubbo:reference id = "userService" interface="com.wcy.dubbotestinterface.service.UserService"></dubbo:reference>
 
+    <!--  连接监控中心  -->
+    <dubbo:monitor protocol="registry"></dubbo:monitor>
+
 </beans>

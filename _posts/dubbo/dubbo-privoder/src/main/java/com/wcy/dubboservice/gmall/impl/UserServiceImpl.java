@@ -1,13 +1,17 @@
 package com.wcy.dubboservice.gmall.impl;
 
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.wcy.dubbotestinterface.bean.UserAddress;
 import com.wcy.dubbotestinterface.service.UserService;
+import org.springframework.stereotype.Component;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-
+@Service  //暴露服务
+@Component
 public class UserServiceImpl implements UserService {
 
 	@Override

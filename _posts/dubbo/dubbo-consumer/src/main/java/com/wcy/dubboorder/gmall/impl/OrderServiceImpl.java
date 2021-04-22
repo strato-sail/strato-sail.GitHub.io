@@ -1,5 +1,6 @@
 package com.wcy.dubboorder.gmall.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.wcy.dubbotestinterface.bean.UserAddress;
 import com.wcy.dubbotestinterface.service.OrderService;
 import com.wcy.dubbotestinterface.service.UserService;
@@ -21,7 +22,8 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-	@Autowired
+//	@Autowired
+	@Reference
 	UserService userService;
 	@Override
 	public List<UserAddress> initOrder(String userId) {
@@ -29,9 +31,9 @@ public class OrderServiceImpl implements OrderService {
 		System.out.println("用户id："+userId);
 		//1、查询用户的收货地址
 		List<UserAddress> addressList = userService.getUserAddressList(userId);
-		for (UserAddress userAddress : addressList) {
-			System.out.println(userAddress.getUserAddress());
-		}
+//		for (UserAddress userAddress : addressList) {
+//			System.out.println(userAddress.getUserAddress());
+//		}
 		return addressList;
 	}
 	

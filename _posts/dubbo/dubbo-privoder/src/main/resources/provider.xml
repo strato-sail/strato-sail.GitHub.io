@@ -17,4 +17,7 @@
     <!-- 服务的实现bean  -->
     <bean id = "userServiceImpl" class="com.wcy.dubboservice.gmall.impl.UserServiceImpl"></bean>
 
+    <!--  连接监控中心  -->
+    <dubbo:monitor protocol="registry"></dubbo:monitor>
+
 </beans>
