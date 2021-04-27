@@ -15,6 +15,8 @@ tags:
 >
 > **目光如炬，勇往直前**
 
+![](\img\in-post\java\Java-route.png)
+
 # 1 编程基础
 
 ## 1.1 Java语言
