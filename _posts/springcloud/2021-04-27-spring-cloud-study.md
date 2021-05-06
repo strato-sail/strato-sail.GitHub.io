@@ -9,9 +9,11 @@ header-style: text
 tags:
   - spring 
   - springCloud
-  - Eureka
   - 分布式
   - 微服务
+  - Eureka
+  - Zookeeper
+  - Consul
 ---
 
 
@@ -28,7 +30,11 @@ tags:
 
 
 
-# Eureka 服务注册与发现(停更)
+# 服务注册中心
+
+
+
+## Eureka 服务注册与发现(停更)
 
 **1）Eureka 概念**
 
@@ -316,3 +322,161 @@ eureka:
   ~~~
 
   
+
+## Zookeeper服务注册中心
+
+*简介：SpringCloud整合Zookeeper代替Eureka*
+
+zookeeper 是一个分布式协调工具，可以实现注册中心功能
+
+**1）服务提供者**
+
+**步骤1：**POM依赖
+
+~~~xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+</dependency>
+~~~
+
+**步骤2：**YML配置文件
+
+~~~yml
+# 8004代表注册到zookeeper服务器的支付服务提供者端口号
+server:
+  port: 8004
+
+# 服务别名---注册zookeeper到服务中心名称
+spring:
+  application:
+    name: cloud-provider-payment
+  cloud:
+    zookeeper:
+      connect-string: 192.168.1.150:2181
+~~~
+
+**步骤3：**主启动类
+
+~~~java
+@SpringBootApplication
+@EnableDiscoveryClient  //用于向使用consul或者zookeeper作为注册中心时注册服务
+public class PaymentMain8004 {
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentMain8004.class, args);
+    }
+}
+~~~
+
+**步骤4：**controller
+
+~~~java
+@RestController
+@Slf4j
+public class PaymentController {
+    @Value("server.port")
+    private String serverPort;
+
+    @RequestMapping(value = "/payment/zk")
+    public String paymentzk() {
+        return "springcloud with zookeeper:" + serverPort + "\t" + UUID.randomUUID().toString();
+    }
+}
+~~~
+
+**步骤5：**测试，启动8004注册进zookeeper
+
+1. zookeeper根节点下出现了services新节点，services节点下有个cloud-provider-payment节点，就是步骤2中自定义的服务名。**zookeeper的服务节点是 -e 临时的**
+
+   ~~~shell
+   [zk: localhost:2181(CONNECTED) 12] get /services/cloud-provider-payment/0f0a2cbc-4ba3-4ffa-9fcc-4daa8701a320 
+   {"name":"cloud-provider-payment","id":"0f0a2cbc-4ba3-4ffa-9fcc-4daa8701a320","address":"localhost","port":8004,"sslPort":null,"payload":{"@class":"org.springframework.cloud.zookeeper.discovery.ZookeeperInstance","id":"application-1","name":"cloud-provider-payment","metadata":{}},"registrationTimeUTC":1620286926493,"serviceType":"DYNAMIC","uriSpec":{"parts":[{"value":"scheme","variable":true},{"value":"://","variable":false},{"value":"address","variable":true},{"value":":","variable":false},{"value":"port","variable":true}]}}
+   ~~~
+
+2. 进入链接 http://localhost:8004/payment/zk 测试。
+
+
+
+**2）服务消费者**
+
+**步骤1：**POM文件
+
+~~~xml
+<!--zookeeper-->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+</dependency>
+~~~
+
+**步骤2：**YAML配置文件
+
+~~~yaml
+server:
+  port: 80
+
+spring:
+  application:
+    name: cloud-consumer-order
+  cloud:
+    # 注册到zookeeper地址
+    zookeeper:
+      connect-string: 192.168.1.150:2181
+~~~
+
+**步骤3：**主启动类
+
+~~~java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class OrderZKMain80 {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderZKMain80.class, args);
+    }
+}
+~~~
+
+**步骤4：**业务类
+
+~~~java
+@RestController
+@Slf4j
+public class OrderZKController {
+    public static final String INVOKE_URL = "http://localhost:8004";
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping(value = "/consumer/payment/zk")
+    public String paymentInfo() {
+        String result = restTemplate.getForObject(INVOKE_URL + "/payment/zk", String.class);
+        return result;
+    }
+}
+~~~
+
+**步骤5：**测试
+
+1. zookeeper客户端的/services路径下有了服务消费者
+2. 访问 http://localhost/consumer/payment/zk 正常输出
+
+
+
+## Consul服务注册中心
+
+[官网地址](https://www.consul.io/docs/intro)
+
+- Consul 是一套开源的分布式服务发现和配置管理系统，由HashiCorp 公司用Go语言开发。
+- 提供了微服务系统中的服务治理、配置中心、控制总线等功能。这些功能中的每一个都可以根据需要单独使用，也可以一起使用以构建全方位的服务网格，总之Consul提供了一种完整的服务网格解决方案。
+- 服务发现：提供HTTP和DNS两种发现方式
+- 健康检测：支持多种协议，HTTP、TCP、Docker、Shell脚本定制化
+- KV存储：Key、Value的存储方式
+- 多数据中心：Consul支持多数据中心
+- 可视化Web界面
+
+**中文教程：**https://www.springcloud.cc/spring-cloud-consul.html
+
+> 放弃Consul，HashiCorp官宣，禁止其旗下Consul等软件在国内使用
+
+
+
