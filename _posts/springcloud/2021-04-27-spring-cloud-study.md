@@ -23,6 +23,14 @@ tags:
 
 # 简介
 
+
+
+$\color{blue}{巴甫洛夫正在死亡}$
+
+<span style="color:red;">巴甫洛夫正在死亡</span>
+
+<span style="color:#0044FF;font-size:22.0pt;font-weight:bold">巴甫洛夫正在死亡</span>
+
 **SpringCloud**（[官网地址](https://spring.io/projects/spring-cloud)）是分布式微服务架构的一站式解决方案，是多种微服务架构落地技术的集合体，俗称微服务全家桶。
 
 **springCloud和springBoot版本适配关系：**
