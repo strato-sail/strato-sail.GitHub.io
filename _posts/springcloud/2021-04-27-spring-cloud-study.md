@@ -15,21 +15,16 @@ tags:
   - Zookeeper
   - Consul
   - Ribbon
+  - OpenFeign
 ---
 
-[TOC]
+
 
 
 
 # 简介
 
 
-
-$\color{blue}{巴甫洛夫正在死亡}$
-
-<span style="color:red;">巴甫洛夫正在死亡</span>
-
-<span style="color:#0044FF;font-size:22.0pt;font-weight:bold">巴甫洛夫正在死亡</span>
 
 **SpringCloud**（[官网地址](https://spring.io/projects/spring-cloud)）是分布式微服务架构的一站式解决方案，是多种微服务架构落地技术的集合体，俗称微服务全家桶。
 
@@ -41,13 +36,13 @@ $\color{blue}{巴甫洛夫正在死亡}$
 
 
 
-# 服务注册中心
+# 1 服务注册中心
 
 
 
 ## Eureka 服务注册与发现(停更)
 
-<font color=#0044FF size=5>**1）Eureka 概念**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">1）Eureka 概念</span>
 
 下图是 Eureka 的架构图：
 
@@ -68,9 +63,9 @@ $\color{blue}{巴甫洛夫正在死亡}$
 
 
 
-<font color=#0044FF size=5>**2）单机版的 eureka**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）单机版的 eureka</span>
 
-<font color=#000000 size=4>**步骤1：**</font>引入pom依赖
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>引入pom依赖
 
 ~~~xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -103,7 +98,7 @@ $\color{blue}{巴甫洛夫正在死亡}$
 </project>
 ~~~
 
-<font color=#000000 size=4>**步骤2：**</font>配置文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>配置文件
 
 ~~~yaml
 server:
@@ -122,7 +117,7 @@ eureka:
       defaultZone: http://${eureka.instance.hostname}:${server.port}
 ~~~
 
-<font color=#000000 size=4>**步骤3：**</font>主启动类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>主启动类
 
 ~~~java
 @SpringBootApplication
@@ -134,9 +129,9 @@ public class EurekaMain7001 {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤4：**</font>可以启动当前项目，并访问 http://localhost:7001 查看web端的注册中心。
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤4：</span>可以启动当前项目，并访问 http://localhost:7001 查看web端的注册中心。
 
-<font color=#000000 size=4>**步骤5：**</font>将服务提供者和消费者注册到eureka
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤5：</span>将服务提供者和消费者注册到eureka
 
 添加依赖：
 
@@ -171,20 +166,20 @@ eureka:
 
 
 
-<font color=#0044FF size=5>**3）集群版的 eureka**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">3）集群版的 eureka</span>
 
 为了高可用使用集群版，实现负载均衡+故障容错。
 
 - 需要注册中心集群化和服务提供者集群化。
 - 注册中心**互相注册，相互守望**
 
-<font color=#000000 size=4>**步骤1：**</font>将不同的server名字更改
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>将不同的server名字更改
 
 在单机模拟的时候，改本机host文件
 
 ![](\img\in-post\springcloud\springcloud-03.png)
 
-<font color=#000000 size=4>**步骤2：**</font>改 7001 的配置文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>改 7001 的配置文件
 
 ~~~yaml
 server:
@@ -205,11 +200,11 @@ eureka:
 
 7002也一样的，`port`和`defaultZone`和 7001 相反。
 
-<font color=#000000 size=4>**步骤3：**</font>启动 server7001 和 server7002，成功启动后 http://eureka7001.com:7001/ 有复制冗余了
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>启动 server7001 和 server7002，成功启动后 http://eureka7001.com:7001/ 有复制冗余了
 
 ![](\img\in-post\springcloud\springcloud-04.png)
 
-<font color=#000000 size=4>**步骤4：**</font>将服务提供者的配置更改
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤4：</span>将服务提供者的配置更改
 
 ~~~yaml
 eureka:
@@ -223,13 +218,13 @@ eureka:
       defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
 ~~~
 
-<font color=#000000 size=4>**步骤5：**</font>测试先启动EurekaServer7001/7002，然后启动服务提供者8001，然后启动服务消费者80，访问 http://localhost/consumer/payment/get/31 。
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤5：</span>测试先启动EurekaServer7001/7002，然后启动服务提供者8001，然后启动服务消费者80，访问 http://localhost/consumer/payment/get/31 。
 
-<font color=#000000 size=4>**步骤6：**</font>服务提供者集群化配置，增加可用性
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤6：</span>服务提供者集群化配置，增加可用性
 
 模仿 `cloud-provider-payment8001` 这个项目，创建`payment8002`
 
-<font color=#000000 size=4>**步骤7：**</font>改服务调用者的 `Controler`，将访问的 `url` 改为注册中心注册的服务名：
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤7：</span>改服务调用者的 `Controler`，将访问的 `url` 改为注册中心注册的服务名：
 
 ~~~java
     //private static final String PAYMENT_URL = "http://localhost:8001";
@@ -249,7 +244,7 @@ public class ApplicationContextConfig {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤8：**</font>可以将注册中心的服务提供者名字改了，修改yml配置文件：
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤8：</span>可以将注册中心的服务提供者名字改了，修改yml配置文件：
 
 ~~~yaml
 eureka:
@@ -266,7 +261,7 @@ eureka:
     prefer-ip-address: true # 访问路径可以显示IP地址
 ~~~
 
-<font color=#000000 size=4>**步骤9：DiscoveryClient **</font>对于注册进`eureka`里面的微服务，可以通过服务发现来获得该服务的信息：
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤9：</span>对于注册进`eureka`里面的微服务，可以通过服务发现来获得该服务的信息：
 
 1. `controller`自动注入
 
@@ -305,7 +300,7 @@ eureka:
    }
    ```
 
-<font color=#000000 size=4>**步骤10：**</font>Eureka 自我保护模式
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤10：</span>Eureka 自我保护模式
 
 - 保护模式主要用于一组客户端和Eureka Server之间存在网络分区场景下的保护。
 - 一旦进入保护模式，Eureka Server 就会尝试保护其服务注册表中的信息，不再删除服务注册表中的数据，也就是**不会注销任何微服务**。
@@ -314,7 +309,7 @@ eureka:
 - 为了防止 EurekaClient 可以正常运行，但是与 EurekaServer 网络不通情况下，EurekaServer 不会立刻将 EurekaClient 服务剔除
 - 默认情况下，如果EurekaServer在一定时间内没有接收到某个微服务实例的心跳，EurekaServer将会注销该实例（默认90秒)。但是当网络分区故障发生(延时、卡顿、拥挤)时，微服务与EurekaSerser之间无法正常通信，以上行为可能变得非常危险了——因为微服务本身其实是健康的，**此时本不应该注销这个微服务。**Eureka通过“自我保护模式”来解决这个问题——当EurekaServer节点在短时间内丢失过多客户端时（可能发生了网络分区故障)，那么这个节点就会进入自我保护模式。
 
-<font color=#000000 size=4>**禁止自我保护的方式：**</font>
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">禁止自我保护的方式：</span>
 
 - 出厂默认，自我保护机制是开启的，修改注册中心 7001 的配置
 
@@ -340,9 +335,9 @@ eureka:
 
 zookeeper 是一个分布式协调工具，可以实现注册中心功能
 
-<font color=#0044FF size=5>**1）服务提供者**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">1）服务提供者</span>
 
-<font color=#000000 size=4>**步骤1：**</font>POM依赖
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>POM依赖
 
 ~~~xml
 <dependency>
@@ -351,7 +346,7 @@ zookeeper 是一个分布式协调工具，可以实现注册中心功能
 </dependency>
 ~~~
 
-<font color=#000000 size=4>**步骤2：**</font>YML配置文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>YML配置文件
 
 ~~~yml
 # 8004代表注册到zookeeper服务器的支付服务提供者端口号
@@ -367,7 +362,7 @@ spring:
       connect-string: 192.168.1.150:2181
 ~~~
 
-<font color=#000000 size=4>**步骤3：**</font>主启动类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>主启动类
 
 ~~~java
 @SpringBootApplication
@@ -379,7 +374,7 @@ public class PaymentMain8004 {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤4：**</font>controller
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤4：</span>controller
 
 ~~~java
 @RestController
@@ -395,7 +390,7 @@ public class PaymentController {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤5：**</font>测试，启动8004注册进zookeeper
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤5：</span>测试，启动8004注册进zookeeper
 
 1. zookeeper根节点下出现了services新节点，services节点下有个cloud-provider-payment节点，就是步骤2中自定义的服务名。**zookeeper的服务节点是 -e 临时的**
 
@@ -408,9 +403,9 @@ public class PaymentController {
 
 
 
-<font color=#0044FF size=5>**2）服务消费者**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）服务消费者</span>
 
-<font color=#000000 size=4>**步骤1：**</font>POM文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>POM文件
 
 ~~~xml
 <!--zookeeper-->
@@ -420,7 +415,7 @@ public class PaymentController {
 </dependency>
 ~~~
 
-<font color=#000000 size=4>**步骤2：**</font>YAML配置文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span></font>YAML配置文件
 
 ~~~yaml
 server:
@@ -435,7 +430,7 @@ spring:
       connect-string: 192.168.1.150:2181
 ~~~
 
-<font color=#000000 size=4>**步骤3：**</font>主启动类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>主启动类
 
 ~~~java
 @SpringBootApplication
@@ -447,7 +442,7 @@ public class OrderZKMain80 {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤4：**</font>业务类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤4：</span>业务类
 
 ~~~java
 @RestController
@@ -466,7 +461,7 @@ public class OrderZKController {
 }
 ~~~
 
-<font color=#000000 size=4>**步骤5：**</font>测试
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤5：</span>测试
 
 1. zookeeper客户端的/services路径下有了服务消费者
 2. 访问 http://localhost/consumer/payment/zk 正常输出
@@ -493,13 +488,13 @@ public class OrderZKController {
 
 
 
-# 负载均衡服务调用
+# 2 负载均衡服务调用
 
 
 
 ## Ribbon负载均衡
 
-<font color=#0044FF size=5>**1）概念**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">1）概念</span>
 
 - Ribbon是Netflix发布的开源项目，主要功能是提供客户端的软件负载均衡算法和服务调用。
 - Ribbon客户端组件提供一系列完善的配置项如连接超时，重试等。简单的说，就是在配置文件中列出Load Balancer (简称LB)后面所有的机器，Ribbon会自动的帮助你基于某种规则(如简单轮询，随机连接等）去连接这些机器。很容易使用Ribbon实现自定义的负载均衡算法。
@@ -508,14 +503,14 @@ public class OrderZKController {
 
 
 
-<font color=#000000 size=4>**Ribboh本地负载均衡客户端  VS  Nginx服务端负载均衡区别**</font>
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">Ribboh本地负载均衡客户端  VS  Nginx服务端负载均衡区别</span>
 
 > - 集中式LB（Load Balanced）：Nginx是服务器负载均衡，客户端所有请求都会交给nginx，然后由nginx实现转发请求。即负载均衡是由服务端实现的
 >- 进程内LB：Ribbon本地负载均衡，在调用微服务接口时候，会在注册中心上获取注册信息服务列表之后缓存到JVM本地从而在本地实现RPC远程服务调用技术。（消费方从服务注册中心获知有哪些地址可用，然后自己再从这些地址中选择出一个合适的服务器调用）
 
 
 
-<font color=#000000 size=4>**步骤1：**</font>**架构图：**
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>**架构图：**
 
 Ribbon 在工作的时候分两步：
 
@@ -527,19 +522,19 @@ Ribbon 在工作的时候分两步：
 
 
 
-<font color=#0044FF size=5>**2）使用**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）使用</span>
 
 Ribbon 核心组件 IRule：根据特定算法中从服务列表中选取一个要访问的服务。
 
 
 
-<font color=#000000 size=4>**步骤1：**</font>POM文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>POM文件
 
 引入`spring-cloud-starter-netflix-eureka-client`依赖就自动引入了`spring-cloud-starter-netflix-ribbon`依赖。
 
 
 
-<font color=#000000 size=4>**步骤2：**</font>IRule配置类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>IRule配置类
 
 > 警告!!
 >
@@ -550,7 +545,7 @@ Ribbon 核心组件 IRule：根据特定算法中从服务列表中选取一个�
 
 
 
-<font color=#000000 size=4>**负载均衡算法：**</font>
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">负载均衡算法：</span>
 
 1. com.netflix.loadbalancer.RoundRobinRule：轮询
 2. com.netflix.loadbalancer.RandomRule：随机
@@ -562,7 +557,7 @@ Ribbon 核心组件 IRule：根据特定算法中从服务列表中选取一个�
 
 
 
-<font color=#000000 size=4>**步骤3：**</font>主启动类上添加`@RibbonClient`
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>主启动类上添加`@RibbonClient`
 
 ~~~java
 @SpringBootApplication
@@ -580,7 +575,7 @@ public class OrderMain80 {
 
 
 
-<font color=#0044FF size=5>**3）Ribbon负载均衡算法原理**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">3）Ribbon负载均衡算法原理</span>
 
 负载均衡算法: 
 
@@ -589,7 +584,7 @@ public class OrderMain80 {
 
 
 
-<font color=#000000 size=4>**轮询算法**</font>
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">轮询算法</span>
 
 ~~~java
 //外面包装一层CAS自旋锁操作用于多线程
@@ -607,7 +602,7 @@ incrementAndGetModulo( int modulo) {
 
 [官网地址](https://github.com/spring-cloud/spring-cloud-openfeign)
 
-<font color=#0044FF size=5>**1）概念**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">1）概念</span>
 
 - Feign 是一个声明式的 web 服务客户端，让编写 web 服务客户端变得非常容易，只需创建一个接口并在接口上添加注解即可。
 - 它的使用方法是定义一个服务接口然后在上面添加注解。Feign 也支持可拔插式的编码器和解码器。
@@ -619,7 +614,7 @@ incrementAndGetModulo( int modulo) {
 
 
 
-<font color=#0044FF size=5>**2）使用**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）使用</span>
 
 微服务调用接口 + @FeignClient
 
@@ -631,7 +626,7 @@ incrementAndGetModulo( int modulo) {
 
 
 
-<font color=#000000 size=4>**步骤1：**</font>POM文件添加依赖
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>POM文件添加依赖
 
 ~~~xml
 <!-- openfeign自动整合了ribbon -->
@@ -649,7 +644,7 @@ incrementAndGetModulo( int modulo) {
 
 
 
-<font color=#000000 size=4>**步骤2：**</font>配置文件
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>配置文件
 
 ~~~yaml
 server:
@@ -663,7 +658,7 @@ eureka:
 
 
 
-<font color=#000000 size=4>**步骤3：**</font>主启动类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤3：</span>主启动类
 
 ~~~java
 @SpringBootApplication
@@ -677,7 +672,7 @@ public class OrderFeignMain80 {
 
 
 
-<font color=#000000 size=4>**步骤4：**</font>业务类
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤4：</span>业务类
 
 - 业务逻辑接口+`@FeignClient`配置调用provider服务
 
@@ -712,7 +707,7 @@ public class OrderFeignMain80 {
 
 
 
-<font color=#000000 size=4>**步骤5：**</font>测试
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤5：</span>测试
 
 访问 http://localhost/consumer/payment/get/31。
 
@@ -720,7 +715,7 @@ Feign自带负载均衡配置项。
 
 
 
-<font color=#0044FF size=5>**3）超时控制**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">3）超时控制</span>
 
 OpenFeign 默认等待一秒钟，超时直接报错。
 
@@ -744,5 +739,5 @@ ribbon:
 
 
 
-<font color=#0044FF size=5>**4）OpenFeign日志打印功能**</font>
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">4）OpenFeign日志打印功能</span>
 
