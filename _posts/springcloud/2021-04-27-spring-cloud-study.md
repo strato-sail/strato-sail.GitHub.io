@@ -2023,7 +2023,7 @@ spring:
 
 
 
-![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-17.png)
+![](\img\in-post\springcloud\springcloud-17.png)
 
 
 
@@ -2042,7 +2042,7 @@ spring:
 
 
 
-![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-18.png)
+![](\img\in-post\springcloud\springcloud-18.png)
 
 
 
@@ -2056,7 +2056,7 @@ spring:
 
 <span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）案例实践</span>
 
-![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-19.png)
+![](\img\in-post\springcloud\springcloud-19.png)
 
 
 
