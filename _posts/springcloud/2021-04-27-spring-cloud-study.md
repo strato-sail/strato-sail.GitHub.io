@@ -18,6 +18,8 @@ tags:
   - OpenFeign
   - Hystrix
   - Gateway
+  - Bus
+  - Cloud Stream
   - sentinel
 ---
 
@@ -30,6 +32,14 @@ tags:
 
 
 **SpringCloud**（[官网地址](https://spring.io/projects/spring-cloud)）是分布式微服务架构的一站式解决方案，是多种微服务架构落地技术的集合体，俗称微服务全家桶。
+
+
+
+**内容：**
+
+![](\img\in-post\springcloud\springcloud-00.png)
+
+
 
 **springCloud和springBoot版本适配关系：**
 
@@ -1985,11 +1995,331 @@ spring:
 
 
 
+# 7 消息驱动
+
+
+
+## Cloud Stream消息驱动
+
+[官网](https://spring.io/projects/spring-cloud-stream#overview)，[官网操作手册](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.1.RELEASE/reference/html/)，[中文指导手册](https://m.wang1314.com/doc/webapp/topic/20971999.html)
+
+<span style="color:#FF0000">目前SpringCloud Stream仅支持RabbitMQ、Kafka。</span>
+
+
+
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">1）概念</span>
+
+- 让我们不再关注具体 MQ 的细节，我们只需要用一种适配绑定的方式，自动在各种 MQ 内切换。
+- Cloud Stream 屏蔽了底层消息中间件的差异，降低切换的成本，统一消息的编程模型，中间层类似 JDBC。
+- 官方定义Spring Cloud Stream是一个构建消息驱动微服务的框架。
+
+
+
+如果一个系统里使用多种 MQ，此时消息队列和系统就耦合在一起了，涉及到两中消息中间件直接的数据迁移，就是灾难性的。SpringCloud Stream 提供了一种解耦合的方式。
+
+
+
+应用程序通过 inputs 或者 outputs 来与Spring Cloud Stream 中 binder 对象交互。通过我们配置来binding(绑定)，而Spring Cloud Stream的<span style="color:#FF0000"> binder 对象负责与消息中间件交互</span>。所以，我们只需要搞清楚如何与Spring Cloud Stream交互就可以方便使用消息驱动的方式。
+
+
+
+![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-17.png)
+
+
+
+| 组成            | 说明                                                         |
+| --------------- | ------------------------------------------------------------ |
+| Middleware      | 中间件，目前只支持RabbitMQ 和 Kafka                          |
+| Binder          | Binder是应用与消息中间件之间的封装，目前实行了Kafka和RabbitMQ的Binder，通过Binder可以很方便的连接中间件，可以动态的改变消息类型(对嗓于Kafka的topic, RabbitMQ 的 exchange)，这些都可以通过配置文件来实现 |
+| @Input          | 注解标识输入通道，通过该输入通道接收到的消息进入应用程序     |
+| @Output         | 注解标识输出通道，发布的消息将通过该通道离开应用程序         |
+| @StreamListener | 监听队列，用于消费者的队列的消息接收                         |
+| @EnableBinding  | 指信道channel和exchange绑定在一起                            |
+
+
+
+其实Springcloud Stream 就是 Topic 主题发布订阅模式，在RabbitMQ 中就是Exchange，在Kafka 种就是 Topic。通过定义绑定器Binder 作为中间层，实现了应用程序与消息中间件细节之间的隔离。
+
+
+
+![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-18.png)
+
+
+
+**上图中的概念：**
+
+- Binder：很方便的连接中间件，屏蔽差异
+- Channel：通道，是队列Queue的一种抽象，在消息通讯系统中就是实现存储和转发的媒介，通过对Channel对队列进行配置
+- Source 和 Sink：简单的可理解为参照对象是Spring Cloud Stream自身，从Stream发布消息就是输出，接受消息就是输入
+
+
+
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）案例实践</span>
+
+![](F:\strato-sail\strato-sail.GitHub.io\img\in-post\springcloud\springcloud-19.png)
+
+
+
+- 配置文件声明Binder的主题名和Channel
+- 消息生产者使用`org.springframework.messaging.MessageChannel`发送消息`output.send(MessageBuilder.withPayload(serial).build())`
+- 消息消费者绑定`org.springframework.cloud.stream.messaging.Sink`并接收
+
+
+
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤1：</span>消息驱动生产者
+
+- POM 依赖：
+
+  ~~~xml
+  <dependency>
+  	<groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+  </dependency>
+  ~~~
+
+- YAML 配置
+
+  ~~~yaml
+  server:
+    port: 8801
+  spring:
+    application:
+      name: cloud-stream-provider
+    cloud:
+      stream:
+        binders:  # 此处配置要绑定的rabbitmq的服务信息
+          defaultRabbit:  # 表示定义的名称，用于和binding整合
+            type: rabbit  # 消息组件类型
+            environment:  # 设置rabbitmq的相关的环境配置
+              spring:
+                rabbitmq:
+                  host: localhost
+                  port: 5672
+                  username: guest
+                  password: guest
+        bindings:  # 服务的整合处理
+          output:  # 这个名字是一个通道名称
+            destination: studyExchange  # 表示要使用的Exchange名称定义
+            content-type: application/json  # 设置消息类型、本次为json，文本则设置“text/plain”
+            binder: defaultRabbit  # 设置要绑定的消息服务的具体设置
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:7001/eureka
+    instance:
+      lease-renewal-interval-in-seconds: 2  # 设置心跳的时间间隔（默认是30秒）
+      lease-expiration-duration-in-seconds: 5  # 如果现在超过了5秒时间间隔（默认是90秒）
+      instance-id: send-9901.com  # 在信息列表时显示主机名称
+      prefer-ip-address: true  # 访问的路径变为IP地址
+  ~~~
+
+- 主启动类：
+
+  ~~~java
+  @SpringBootApplication
+  public class StreamMQMain8801 {
+      public static void main(String[] args) {
+          SpringApplication.run(StreamMQMain8801.class, args);
+      }
+  }
+  ~~~
+
+- 业务逻辑类，只是搭建通道，没有 dao，操作的是消息中间件（看生产者消费者上图组织结构，引入的 `Source.class` 是 `cloud.stream.messaging.Source` 的）
+
+  - 接口：
+
+    ~~~java
+    package com.wcy.springcloud.servuce;
+    
+    public interface IMessageProvider {
+        public String send();
+    }
+    ~~~
+
+  - 实现类：
+
+    ~~~java
+    package com.wcy.springcloud.servuce.impl;
+    
+    import com.wcy.springcloud.servuce.IMessageProvider;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.cloud.stream.annotation.EnableBinding;
+    import org.springframework.cloud.stream.messaging.Source;
+    import org.springframework.messaging.MessageChannel;
+    import org.springframework.messaging.support.MessageBuilder;
+    import java.util.UUID;
+    
+    @EnableBinding(Source.class)  //定义消息的推送管道
+    public class MessageProviderImpl implements IMessageProvider {
+    
+        @Autowired
+        private MessageChannel output; //消息发送管道
+    
+        @Override
+        public String send() {
+            String serial = UUID.randomUUID().toString();
+            output.send(MessageBuilder.withPayload(serial).build());
+            System.out.println("serial:"+serial);
+            return null;
+        }
+    }
+    ~~~
+
+  - controller层：
+
+    ~~~java
+    @RestController
+    public class SendMessageController {
+        @Autowired
+        private MessageProviderImpl messageProvider;
+    
+        @GetMapping("/sendMessage")
+        public String sendMessage(){
+            return messageProvider.send();
+        }
+    }
+    ~~~
+
+- 测试：启动 7001 注册中心，启动 rabbitmq（在 http://localhost:15672/#/exchanges 里就有上面 yaml 配置文件配置的 studyExchange 的主题 Topic），启动 8801，访问。
+
+
+
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">步骤2：</span>消息驱动消费者
+
+- POM 依赖：
+
+  ~~~xml
+  <dependency>
+  	<groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+  </dependency>
+  ~~~
+
+- YAML 配置文件：
+
+  ~~~yaml
+  server:
+    port: 8802
+  spring:
+    application:
+      name: cloud-stream-consumer
+    cloud:
+      stream:
+        binders:  # 此处配置要绑定的rabbitmq的服务信息
+          defaultRabbit:  # 表示定义的名称，用于和binding整合
+            type: rabbit  # 消息组件类型
+            environment:  # 设置rabbitmq的相关的环境配置
+              spring:
+                rabbitmq:
+                  host: localhost
+                  port: 5672
+                  username: guest
+                  password: guest
+        bindings:  # 服务的整合处理
+          input:  # 这个名字是一个通道名称
+            destination: studyExchange  # 表示要使用的Exchange名称定义
+            content-type: application/json  # 设置消息类型、本次为json，文本则设置“text/plain”
+            binder: defaultRabbit  # 设置要绑定的消息服务的具体设置
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:7001/eureka
+    instance:
+      lease-renewal-interval-in-seconds: 2  # 设置心跳的时间间隔（默认是30秒）
+      lease-expiration-duration-in-seconds: 5  # 如果现在超过了5秒时间间隔（默认是90秒）
+      instance-id: receive-8802.com  # 在信息列表时显示主机名称
+      prefer-ip-address: true  # 访问的路径变为IP地址
+  ~~~
+
+- 主启动类：
+
+  ~~~~java
+  @SpringBootApplication
+  public class StreamMQMain8802 {
+      public static void main(String[] args) {
+          SpringApplication.run(StreamMQMain8802.class, args);
+      }
+  }
+  ~~~~
+
+- 业务类 controller：
+
+  ~~~java
+  package com.wcy.springcloud.controller;
+  
+  import org.springframework.beans.factory.annotation.Value;
+  import org.springframework.cloud.stream.annotation.EnableBinding;
+  import org.springframework.cloud.stream.annotation.StreamListener;
+  import org.springframework.cloud.stream.messaging.Sink;
+  import org.springframework.messaging.Message;
+  import org.springframework.stereotype.Component;
+  
+  /**
+   * @author wangcy
+   * @date 2021-5-17 11:35
+   * descriotion
+   */
+  @Component
+  @EnableBinding(Sink.class)
+  public class ReceiveMessageListenerController {
+  
+      @Value("${server.port}")
+      private String serverPort;
+  
+      @StreamListener(Sink.INPUT)
+      public void input(Message<String> message) {
+          System.out.println("消费者1号，接受到的消息：" + message.getPayload() + "\t prot:" + serverPort);
+      }
+  }
+  ~~~
+
+- 测试：访问 http://localhost:8801/sendMessage 发送消息后，8802消息消费者收到消息。
+
+
+
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">3）重复消费的问题</span>
+
+不同组是可以全面消费的（重复消费）；同一组内会发生竞争关系，只有其中一个可以消费。
+
+- 故障现象：重复消费
+- 导致原因：默认分组group是不同的，组流水号是不同的，被认为是不同组
+- 自定义配置分组，分为一个组解决
+
+<span style="color:#FF0000">散服务应用放置于同一个group中，就能够保证消息只会被其中一个应用消费一次。不同的组是可以消费的，同一个组内会发生竞争关系，只有其中一个可以消费。</span>
+
+
+
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">更改组步骤：</span>
+
+YAML 配置改变：每个组相当于一个队列，相同组使用一个队列
+
+~~~yaml
+bindings:  # 服务的整合处理
+  input:  # 这个名字是一个通道名称
+    destination: studyExchange  # 表示要使用的Exchange名称定义
+    content-type: application/json  # 设置消息类型、本次为json，文本则设置“text/plain”
+    binder: defaultRabbit  # 设置要绑定的消息服务的具体设置
+    group: wcyTEST1  # 自定义组名
+~~~
+
+
+
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">4）持久化的问题</span>
+
+增加 `group` 的属性配置，自动实现了持久化的问题。
+
+<span style="color:#000000;font-size:14.0pt;font-weight:bold">测试步骤：</span>
+
+- 将8802 消费者的配置文件 group 属性删掉
+- 8801 生产者多生产几个消息
+- 先启动8802，无分组属性配置，消息丢失
+- 再启动8803，有分组属性配置，后台打出消息
 
 
 
 
-# * 踩过的坑
+
+# # 踩过的坑
 
 <span style="color:#0000FF;font-size:14.0pt;font-weight:bold">问题1：</span>服务降级报错
 
