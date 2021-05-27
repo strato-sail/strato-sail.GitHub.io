@@ -472,3 +472,22 @@ MySQL 的配置查看遇见的坑1.
 
 
 
+<span style="color:#0044FF;font-size:15.0pt;font-weight:bold">2）无法创建Bean：requestMappingHandlerAdapter</span>
+
+报错：
+
+~~~shell
+Error creating bean with name 'requestMappingHandlerAdapter' defined in
+~~~
+
+原因：jackson 依赖未引入或者版本太低
+
+~~~xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+  <version>2.9.6</version>
+  <type>bundle</type>
+</dependency>
+~~~
+
