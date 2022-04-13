@@ -272,6 +272,10 @@ int main()
 
 
 
+生成解决方案会提示少`liblzma.dll`，在https://www.dllme.com/dll/files/liblzma_dll.html下载并放在`C://Windows/System32/`里就ok了。
+
+
+
 # 3. 编译生成32位
 
 
