@@ -380,3 +380,21 @@ int main()
 
 
 依次修改 makefile.vc 和 nmake.opt 的依赖文件夹和输出文件夹
+
+
+
+使用第一章节的 libspatialite-4.3.0a 版本会失败，解决一早上不能成功，会报错：
+
+~~~
+src/connection_cache/alloc_cache.obj : fatal error LNK1112: 模块计算机类型“x64”与目标计算机类型“X86”冲突
+NMAKE : fatal error U1077: “D:\vs2010\install\VC\BIN\lib.EXE”: 返回代码“0x458”
+Stop.
+~~~
+
+
+
+于是我分别尝试了更高版本和更低版本的，最后采用 **libspatialite-4.0.0** 结果可以编译成功（具体方法可以参考第一章64位的编译方法）。我的推测是更高版本使用的分配内存的 alloc_cache 库得到了更新。
+
+
+
+项目可以使用第二章的相同配置。
