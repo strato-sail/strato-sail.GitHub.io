@@ -286,9 +286,97 @@ int main()
 
 尝试手动编译32位的依赖库。。
 
-- freexl：https://www.gaia-gis.it/fossil/freexl/home
+
 
 ~~~
-freexl里makefile.vc不能找到32位的选项
+	link /debug /dll /out:$(SPATIALITE_DLL) \
+		/implib:spatialite_i.lib $(LIBOBJ) \
+		C:\OSGeo4W64\include\proj\proj_i.lib C:\OSGeo4W64\lib\geos_c.lib \
+		C:\OSGeo4w64\lib\freexl_i.lib C:\OSGeo4w64\lib\iconv.lib \
+		C:\OSGeo4W64\lib\sqlite3_i.lib C:\OSGeo4W64\lib\zlib.lib \
+		C:\OSGeo4W64\lib\libxml2.lib
 ~~~
 
+
+
+
+
+使用vs2010的msvc x86的命令行！
+
+
+
+- proj-4.9.3
+
+  ~~~
+  nmake /f makefile.vc install
+  ~~~
+
+- iconv-1.11.1: http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.11.1.tar.gz
+
+  ~~~
+  nmake -f Makefile.msvc all install DLL=1  MFLAGS=-MT  NO_NLS=1  PREFIX=D:\lib
+  ~~~
+
+- freexl-1.0.0：https://www.gaia-gis.it/fossil/freexl/home
+
+  ~~~
+  依赖于iconv，先编译iconv
+  nmake -f makefile.vc install
+  ~~~
+
+- geos-3.5.2: http://download.osgeo.org/geos/geos-3.5.2.tar.bz2
+
+  ~~~
+  没啥依赖直接编译
+  nmake /f makefile.vc
+  ~~~
+
+- sqlite： https://www.sqlite.org/download.html
+
+  ~~~
+  参考博客 https://blog.csdn.net/u012719076/article/details/123248915
+  
+  LIB /out:D:\spatialite32\libs\sqlite3\sqlite3.lib /MACHINE:IX86 /DEF:D:\spatialite32\libs\sqlite3\sqlite3.def
+  ~~~
+
+- zlib-1.2.12: http://zlib.net/
+
+  ~~~
+  https://sourceforge.net/projects/libpng/files/zlib/1.2.7/zlib-1.2.7.tar.gz/download
+  
+  nmake -f win32/Makefile.msc LOC="-DASMV -DASMINF" OBJA="match686.obj inffas32.obj"
+  ~~~
+
+- libxml2-2.9.7: http://xmlsoft.org/sources/
+
+  ~~~
+  依赖于iconv
+  ~~~
+
+  ~~~
+  1、下载libxml2源文件，下载路径http://xmlsoft.org/sources/，在此使用的版本是libxml2-sources-2.9.7.tar.gz
+  
+  2、解压文件到目录
+  
+  3、新建文件夹D:\xml，并在该文件夹下创建include和lib文件，将iconv.h、libcharset.h、localcharset.h文件放入include文件夹下，iconv.lib（如果上面libiconv生成出来的lib文件命名不是这样，需要修改，否则生成libxml2时会提示找不到iconv.lib文件）文件放入lib文件夹下
+  
+  4、打开Visual Studio 2010命令提示程序(32位的控制台 D:\vs2010\install\VC\bin\vcvars32.bat)
+  
+  5、将工作目录cd到\libxml2-2.9.7\win32
+  
+  6、输入cscript configure.js prefix=D:\xml include=D:\xml\include lib=D:\xml\lib debug=no
+  
+  这里面prefix是存放libxml2生成的文件存放路径，include是包含文件（步骤3中存放头文件）路径，lib是库文件（步骤3中存放iconv.lib）路径，debug为yes是生成debug调试版本，为no是生成release版本
+  
+  7、nmake /f Makefile.msvc
+  
+  8、nmake /f Makefile.msvc install
+  ~~~
+
+
+
+以上所有依赖库搞定后开始编译spatialite x86
+
+
+
+依次修改 makefile.vc 和 nmake.opt 的依赖文件夹和输出文件夹
